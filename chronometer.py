@@ -4,11 +4,11 @@ from tkinter import Tk, Label, Button, Frame
 
 proceso = 0
 
-def iniciar(h=0, m=0, s=0):
+def start_chronometer(h=0, m=0, s=0):
     global proceso
 
     try:
-        parar()
+        stop_chronometer()
     except:
         pass
 
@@ -22,23 +22,23 @@ def iniciar(h=0, m=0, s=0):
                 h = 0
 
     time['text'] = str(h) + ":" + str(m) + ":" + str(s)
-    proceso = time.after(1000, iniciar, (h), (m), (s + 1))
+    proceso = time.after(1000, start_chronometer, (h), (m), (s + 1))
 
-def parar():
+def stop_chronometer():
     try:
         global proceso
         time.after_cancel(proceso)
     except:
         pass
 
-def reanudar():
+def resume_chronometer():
     try:
         global proceso
-        horas=int(time['text'].split(':')[0])
+        hours=int(time['text'].split(':')[0])
         mins=int(time['text'].split(':')[1])
-        segundos=int(time['text'].split(':')[2])+1 #le sumo 1 para que no pierda tiempo en iniciar
-        parar()
-        iniciar(h=horas, m=mins, s=segundos)
+        secs=int(time['text'].split(':')[2])+1
+        stop_chronometer()
+        start_chronometer(h=hours, m=mins, s=secs)
     except:
         pass
 
@@ -52,9 +52,9 @@ time.pack()
 time['text'] = "0:0:0"
 
 frame = Frame(root)
-btnIniciar = Button(frame, fg='green', text='Iniciar', command=iniciar).grid(row=1, column=1,padx=2, pady=5)
-btnParar = Button(frame, fg='red', text='Parar', command=parar).grid(row=1, column=2,padx=2, pady=5)
-btnReanudar = Button(frame, fg='blue', text='Reanudar', command=reanudar).grid(row=1, column=3,padx=2, pady=5)
+btnIniciar = Button(frame, fg='green', text='Start', command=start_chronometer).grid(row=1, column=1,padx=2, pady=5)
+btnParar = Button(frame, fg='red', text='Stop', command=stop_chronometer).grid(row=1, column=2,padx=2, pady=5)
+btnReanudar = Button(frame, fg='blue', text='Resume', command=resume_chronometer).grid(row=1, column=3,padx=2, pady=5)
 frame.pack()
 
 root.mainloop()
