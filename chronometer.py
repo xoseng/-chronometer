@@ -21,7 +21,21 @@ def start_chronometer(h=0, m=0, s=0):
             if h >= 24:
                 h = 0
 
-    time['text'] = str(h) + ":" + str(m) + ":" + str(s)
+    if s < 10:
+        secss='0'+str(s)
+    else:
+        secss = str(s)
+    if m < 10:
+        minss='0'+str(m)
+    else:
+        minss =str(m)
+    if h < 10:
+        hourss='0'+str(h)
+    else:
+        hourss = str(h)
+        
+    time['text'] = hourss + ":" + minss + ":" + secss
+    #time['text'] = str(h) + ":" + str(m) + ":" + str(s)
     proceso = time.after(1000, start_chronometer, (h), (m), (s + 1))
 
 def stop_chronometer():
