@@ -63,7 +63,8 @@ root.config(bd=30)
 time = Label(root, fg='black', width=20, font=("", "18"))
 time.pack()
 
-time['text'] = "0:0:0"
+#time['text'] = "0:0:0"
+time['text'] = "00:00:00"
 
 frame = Frame(root)
 btnIniciar = Button(frame, fg='green', text='Start', command=start_chronometer).grid(row=1, column=1,padx=2, pady=5)
