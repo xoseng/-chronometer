@@ -1,5 +1,5 @@
 import tkinter
-from tkinter import Tk, Label, Button, Frame, Misc
+from tkinter import Tk, Label, Button, Frame, Misc, Text
 from time_manager import Chrono
 
 
@@ -50,7 +50,6 @@ class Gui:
             self.end_timer = True
 
 
-
 def start_chronometer():
     try:
         stop_chronometer()
@@ -58,7 +57,6 @@ def start_chronometer():
         pass
     my_chrono.process = my_gui.time.after(1000, start_chronometer)
     print(my_chrono.process)
-    # my_chrono.seconds = int(my_chrono.process.split("#")[-1])
     my_chrono.seconds += 1
     my_gui.time['text'] = my_gui.display_time_in_mm_ss(my_chrono.seconds)
 
@@ -81,9 +79,10 @@ def create_time_settings_window():
     time_settings_window.title('time setting')
     time_settings_window.resizable(0, 0)
     time_settings_window.config(bd=30)
-    time = Label(time_settings_window, fg='black', width=20, font=("", "18"))
-    time.pack()
-    time['text'] = "00:00"
+    inputtxt = tkinter.Text(time_settings_window,
+                            height=1,
+                            width=5)
+    inputtxt.pack()
 
     frame = Frame(time_settings_window)
 
