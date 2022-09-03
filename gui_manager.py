@@ -14,8 +14,9 @@ class Gui:
         self.time = Label(self.root, fg='black', width=20, font=("", "18"))
         self.time.pack()
         self.time['text'] = "00:00"
-        self.max_time = 25 * 60
         self.end_timer = False
+
+        self.inputtxt = None
 
         frame = Frame(self.root)
         self.btnIniciar = Button(frame, fg='green', text='Start', command=start_chronometer).grid(row=1,
@@ -42,8 +43,8 @@ class Gui:
     def main_loop(self):
         self.root.mainloop()
 
-    def display_time_in_mm_ss(self, time_in_seconds):
-        time_to_display = self.max_time - time_in_seconds
+    def display_time_in_mm_ss(self, time_in_seconds, max_time):
+        time_to_display = max_time - time_in_seconds
         if time_to_display >= 0:
             return '{:02d}:{:02d}'.format(time_to_display // 60, time_to_display % 60)
         else:
@@ -58,7 +59,7 @@ def start_chronometer():
     my_chrono.process = my_gui.time.after(1000, start_chronometer)
     print(my_chrono.process)
     my_chrono.seconds += 1
-    my_gui.time['text'] = my_gui.display_time_in_mm_ss(my_chrono.seconds)
+    my_gui.time['text'] = my_gui.display_time_in_mm_ss(my_chrono.seconds, my_chrono.max_time)
 
 
 def stop_chronometer():
@@ -71,18 +72,36 @@ def resume_chronometer():
     global my_gui
     stop_chronometer()
     my_chrono.seconds = 0
-    my_gui.time['text'] = my_gui.display_time_in_mm_ss(my_chrono.seconds)
+    my_gui.time['text'] = my_gui.display_time_in_mm_ss(my_chrono.seconds, my_chrono.max_time)
 
+def get_value():
+    global my_gui
+    try:
+        inp = my_gui.inputtxt.get(1.0, "end-1c")
+        time = inp.split(":")
+        max_time = int(time[0]) * 60 + int(time[1])
+    except:
+        print("no Empty string please")
+        print("set default time 25 minutes")
+        max_time = 25 * 60
+    my_chrono.max_time = max_time
 
 def create_time_settings_window():
+    global my_gui
     time_settings_window = Tk()
     time_settings_window.title('time setting')
     time_settings_window.resizable(0, 0)
     time_settings_window.config(bd=30)
-    inputtxt = tkinter.Text(time_settings_window,
-                            height=1,
-                            width=5)
-    inputtxt.pack()
+    frame = Frame(time_settings_window)
+    my_gui.inputtxt = Text(time_settings_window,
+                    height=1,
+                    width=5)
+    btnValidate = Button(frame, fg='green', text='Go', command=get_value).grid(row=1,
+                                                                                      column=2,
+                                                                                      padx=2,
+                                                                                      pady=5)
+    my_gui.inputtxt.pack()
+    frame.pack()
 
     frame = Frame(time_settings_window)
 
@@ -90,6 +109,6 @@ def create_time_settings_window():
     time_settings_window.call('wm', 'attributes', '.', '-topmost', '1')
 
 if __name__ == "__main__":
-    my_gui = Gui()
     my_chrono = Chrono()
+    my_gui = Gui()
     my_gui.main_loop()
