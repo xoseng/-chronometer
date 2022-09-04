@@ -1,4 +1,4 @@
-from tkinter import Tk, Label, Button, Frame, Misc, Text, messagebox
+from tkinter import Tk, Label, Button, Frame, Text, messagebox
 
 
 class Chrono:
@@ -13,15 +13,16 @@ class Chrono:
 class Gui:
 
     def __init__(self, title):
-
         self.root = Tk()
         self.root.title(title)
         self.root.resizable(0, 0)
         self.root.config(bd=30)
         self.time = Label(self.root, fg='black', width=20, font=("", "18"))
         self.time.pack()
+        self.input_txt = None
+        self.btnValidate = None
 
-        # Windows should stay in forebground
+        # Windows should stay in foreground
         self.root.call('wm', 'attributes', '.', '-topmost', '1')
 
     def create_main_window(self):
@@ -47,17 +48,15 @@ class Gui:
 
     def create_time_settings_window(self):
         frame = Frame(self.root)
-        self.inputtxt = Text(self.root,
-                             height=1,
-                             width=5)
+        self.input_txt = Text(self.root,
+                              height=1,
+                              width=5)
         self.btnValidate = Button(frame, fg='green', text='Go', command=get_value).grid(row=1,
                                                                                         column=2,
                                                                                         padx=2,
                                                                                         pady=5)
-        self.inputtxt.pack()
+        self.input_txt.pack()
         frame.pack()
-
-        frame = Frame(self.root)
 
     def main_loop(self):
         self.root.mainloop()
@@ -73,20 +72,21 @@ def start_chronometer():
         stop_chronometer()
     except:
         pass
-    my_chrono.process = my_gui.time.after(1000, start_chronometer)
-    my_chrono.seconds += 1
+    my_chronometer.process = my_gui.time.after(1000, start_chronometer)
+    my_chronometer.seconds += 1
 
-    if my_chrono.max_time == my_chrono.seconds:
-        my_gui.time.config(fg="red")
-        my_gui.time['text'] = "C'est fini"
+    if my_chronometer.max_time <= my_chronometer.seconds:
+        my_gui.time.config(fg="red", font=("", "16"))
+        my_gui.time['text'] = "C'est fini, posez les stylos"
         stop_chronometer()
     else:
-        my_gui.time['text'] = display_time_in_mm_ss(my_chrono.seconds, my_chrono.max_time)
+        my_gui.time.config(fg="black", font=("", "18"))
+        my_gui.time['text'] = display_time_in_mm_ss(my_chronometer.seconds, my_chronometer.max_time)
 
 
 def stop_chronometer():
     try:
-        my_gui.time.after_cancel(my_chrono.process)
+        my_gui.time.after_cancel(my_chronometer.process)
     except:
         pass
 
@@ -94,14 +94,14 @@ def stop_chronometer():
 def resume_chronometer():
     global my_gui
     stop_chronometer()
-    my_chrono.seconds = 0
-    my_gui.time['text'] = display_time_in_mm_ss(my_chrono.seconds, my_chrono.max_time)
+    my_chronometer.seconds = 0
+    my_gui.time['text'] = display_time_in_mm_ss(my_chronometer.seconds, my_chronometer.max_time)
 
 
 def get_value():
     global time_settings_window
     try:
-        inp = time_settings_window.inputtxt.get(1.0, "end-1c")
+        inp = time_settings_window.input_txt.get(1.0, "end-1c")
         time = inp.split(":")
         max_time = int(time[0]) * 60 + int(time[1])
     except:
@@ -109,9 +109,9 @@ def get_value():
         time_settings_window.root.deiconify()
         messagebox.showinfo('Error', 'format not correct\nCorrect format: xx:xx\nSet default time to 25 minutes')
         max_time = 25 * 60
-        my_chrono.max_time = max_time
+        my_chronometer.max_time = max_time
         return
-    my_chrono.max_time = max_time
+    my_chronometer.max_time = max_time
     time_settings_window.root.destroy()
 
 
@@ -122,7 +122,7 @@ def click_time_settings_window():
 
 
 if __name__ == "__main__":
-    my_chrono = Chrono()
+    my_chronometer = Chrono()
     time_settings_window = None
     my_gui = Gui(title='chronometer')
     my_gui.create_main_window()
