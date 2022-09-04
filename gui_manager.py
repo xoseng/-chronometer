@@ -77,7 +77,7 @@ def start_chronometer():
 
     if my_chronometer.max_time <= my_chronometer.seconds:
         my_gui.time.config(fg="red", font=("", "16"))
-        my_gui.time['text'] = "C'est fini, posez les stylos"
+        my_gui.time['text'] = "Time off!"
         stop_chronometer()
     else:
         my_gui.time.config(fg="black", font=("", "18"))
