@@ -1,75 +1,129 @@
-# coding=utf8
+from tkinter import Tk, Label, Button, Frame, Text, messagebox
 
-from tkinter import Tk, Label, Button, Frame
 
-proceso = 0
+class Chrono:
 
-def start_chronometer(h=0, m=0, s=0):
-    global proceso
+    def __init__(self, is_pause=False):
+        self.seconds = 0
+        self.process = None
+        self.is_pause = is_pause
+        self.max_time = 25 * 60
 
+
+class Gui:
+
+    def __init__(self, title):
+        self.root = Tk()
+        self.root.title(title)
+        self.root.resizable(0, 0)
+        self.root.config(bd=30)
+        self.time = Label(self.root, fg='black', width=20, font=("", "18"))
+        self.time.pack()
+        self.input_txt = None
+        self.btnValidate = None
+
+        # Windows should stay in foreground
+        self.root.call('wm', 'attributes', '.', '-topmost', '1')
+
+    def create_main_window(self):
+        self.time['text'] = "00:00"
+        frame = Frame(self.root)
+        _btnStart = Button(frame, fg='green', text='Start', command=start_chronometer).grid(row=1,
+                                                                                            column=1,
+                                                                                            padx=2,
+                                                                                            pady=5)
+        _btnStop = Button(frame, fg='red', text='Stop', command=stop_chronometer).grid(row=1,
+                                                                                       column=2,
+                                                                                       padx=2,
+                                                                                       pady=5)
+        _btnResume = Button(frame, fg='blue', text='Resume', command=resume_chronometer).grid(row=1,
+                                                                                              column=3,
+                                                                                              padx=2,
+                                                                                              pady=5)
+        _btnInput = Button(frame, fg='blue', text='Changing time', command=click_time_settings_window).grid(row=2,
+                                                                                                            column=2,
+                                                                                                            padx=2,
+                                                                                                            pady=5)
+        frame.pack()
+
+    def create_time_settings_window(self):
+        frame = Frame(self.root)
+        self.input_txt = Text(self.root,
+                              height=1,
+                              width=5)
+        self.btnValidate = Button(frame, fg='green', text='Go', command=get_value).grid(row=1,
+                                                                                        column=2,
+                                                                                        padx=2,
+                                                                                        pady=5)
+        self.input_txt.pack()
+        frame.pack()
+
+    def main_loop(self):
+        self.root.mainloop()
+
+
+def display_time_in_mm_ss(time_in_seconds, max_time):
+    time_to_display = max_time - time_in_seconds
+    return '{:02d}:{:02d}'.format(time_to_display // 60, time_to_display % 60)
+
+
+def start_chronometer():
     try:
         stop_chronometer()
     except:
         pass
+    my_chronometer.process = my_gui.time.after(1000, start_chronometer)
+    my_chronometer.seconds += 1
 
-    if s >= 60:
-        s = 0
-        m = m + 1
-        if m >= 60:
-            m = 0
-            h = h + 1
-            if h >= 24:
-                h = 0
+    if my_chronometer.max_time <= my_chronometer.seconds:
+        my_gui.time.config(fg="red", font=("", "16"))
+        my_gui.time['text'] = "Time off!"
+        stop_chronometer()
+    else:
+        my_gui.time.config(fg="black", font=("", "18"))
+        my_gui.time['text'] = display_time_in_mm_ss(my_chronometer.seconds, my_chronometer.max_time)
 
-    if s < 10:
-        secss='0'+str(s)
-    else:
-        secss = str(s)
-    if m < 10:
-        minss='0'+str(m)
-    else:
-        minss =str(m)
-    if h < 10:
-        hourss='0'+str(h)
-    else:
-        hourss = str(h)
-        
-    time['text'] = hourss + ":" + minss + ":" + secss
-    #time['text'] = str(h) + ":" + str(m) + ":" + str(s)
-    proceso = time.after(1000, start_chronometer, (h), (m), (s + 1))
 
 def stop_chronometer():
     try:
-        global proceso
-        time.after_cancel(proceso)
+        my_gui.time.after_cancel(my_chronometer.process)
     except:
         pass
+
 
 def resume_chronometer():
+    global my_gui
+    stop_chronometer()
+    my_chronometer.seconds = 0
+    my_gui.time['text'] = display_time_in_mm_ss(my_chronometer.seconds, my_chronometer.max_time)
+
+
+def get_value():
+    global time_settings_window
     try:
-        global proceso
-        hours=int(time['text'].split(':')[0])
-        mins=int(time['text'].split(':')[1])
-        secs=int(time['text'].split(':')[2])+1
-        stop_chronometer()
-        start_chronometer(h=hours, m=mins, s=secs)
+        inp = time_settings_window.input_txt.get(1.0, "end-1c")
+        time = inp.split(":")
+        max_time = int(time[0]) * 60 + int(time[1])
     except:
-        pass
+        time_settings_window.root.withdraw()
+        time_settings_window.root.deiconify()
+        messagebox.showinfo('Error', 'format not correct\nCorrect format: xx:xx\nSet default time to 25 minutes')
+        max_time = 25 * 60
+        my_chronometer.max_time = max_time
+        return
+    my_chronometer.max_time = max_time
+    time_settings_window.root.destroy()
 
-root = Tk()
-root.title('Chronometer')
-root.resizable(0, 0)
-root.config(bd=30)
-time = Label(root, fg='black', width=20, font=("", "18"))
-time.pack()
 
-#time['text'] = "0:0:0"
-time['text'] = "00:00:00"
+def click_time_settings_window():
+    global time_settings_window
+    time_settings_window = Gui(title='time setting')
+    time_settings_window.create_time_settings_window()
 
-frame = Frame(root)
-btnIniciar = Button(frame, fg='green', text='Start', command=start_chronometer).grid(row=1, column=1,padx=2, pady=5)
-btnParar = Button(frame, fg='red', text='Stop', command=stop_chronometer).grid(row=1, column=2,padx=2, pady=5)
-btnReanudar = Button(frame, fg='blue', text='Resume', command=resume_chronometer).grid(row=1, column=3,padx=2, pady=5)
-frame.pack()
 
-root.mainloop()
+if __name__ == "__main__":
+    my_chronometer = Chrono()
+    time_settings_window = None
+    my_gui = Gui(title='chronometer')
+    my_gui.create_main_window()
+    my_gui.main_loop()
