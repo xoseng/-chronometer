@@ -1,4 +1,4 @@
-from tkinter import Tk, Label, Button, Frame, Text, messagebox, Radiobutton, IntVar
+from tkinter import Tk, Label, Button, Frame, messagebox, Radiobutton, IntVar
 from tkinter import ttk
 
 
@@ -24,7 +24,8 @@ class Gui:
         self.frame_radio_button = Frame(self.frame_settings)
         self.time = Label(self.root, fg='black', width=20, font=("", "18"))
         self.time.grid(row=0, column=0, padx=2, pady=5)
-        self.input_txt = None
+        self.current_value_minutes = None
+        self.current_value_seconds = None
         self.btnValidate = None
         self.radio_button_variable = IntVar(master=self.root, value=0)
 
@@ -101,20 +102,64 @@ class Gui:
         self.create_radio_buttons()
 
     def create_time_settings_window(self):
-        frame_cmd_button = Frame(self.root)
-        self.input_txt = Text(
-            self.root,
-            height=1,
-            width=5
-        )
+        frame_minutes_seconds = Frame(master=self.root)
+        frame_minutes_seconds.grid(row=0, column=0)
+
+        self.current_value_minutes = IntVar(master=frame_minutes_seconds, value=25)
+        self.current_value_seconds = IntVar(master=frame_minutes_seconds, value=0)
+
         self.btnValidate = Button(
-            frame_cmd_button,
+            self.root,
             fg='green',
             text='Go',
             command=get_value
-        ).grid(row=1, column=2, padx=2, pady=5)
-        self.input_txt.grid()
-        frame_cmd_button.grid()
+        ).grid(row=1, column=0, padx=2, pady=5)
+
+        spinbox_minutes = ttk.Spinbox(
+            frame_minutes_seconds,
+            from_=0,
+            to=240,  # 4 hours it's enough
+            textvariable=self.current_value_minutes,
+            width=5
+        )
+        spinbox_minutes.grid(row=1, column=0, padx=4, pady=1, sticky='w')
+
+        spinbox_seconds = ttk.Spinbox(
+            frame_minutes_seconds,
+            from_=0,
+            to=59,
+            textvariable=self.current_value_seconds,
+            wrap=True,
+            width=5
+        )
+        spinbox_seconds.grid(row=1, column=2, padx=4, pady=1, sticky='e')
+
+        minutes_seconds_separator_label = Label(
+            master=frame_minutes_seconds,
+            fg='black',
+            width=1,
+            font=("", "18")
+        )
+        minutes_seconds_separator_label.grid(row=1, column=1, padx=2, pady=1)
+        minutes_seconds_separator_label['text'] = ":"
+
+        minutes_label = Label(
+            master=frame_minutes_seconds,
+            fg='black',
+            width=6,
+            font=("", "7")
+        )
+        minutes_label.grid(row=0, column=0, padx=2, pady=10, sticky="s")
+        minutes_label['text'] = "minutes"
+
+        seconds_label = Label(
+            master=frame_minutes_seconds,
+            fg='black',
+            width=6,
+            font=("", "7")
+        )
+        seconds_label.grid(row=0, column=2, padx=2, pady=10, sticky="s")
+        seconds_label['text'] = "seconds"
 
     def main_loop(self):
         self.root.mainloop()
@@ -207,9 +252,8 @@ def resume_chronometer():
 def get_value():
     global time_settings_window
     try:
-        inp = time_settings_window.input_txt.get(1.0, "end-1c")
-        time = inp.split(":")
-        max_time = int(time[0]) * 60 + int(time[1])
+        max_time = int(time_settings_window.current_value_minutes.get()) * 60 + \
+                   int(time_settings_window.current_value_seconds.get())
     except:
         time_settings_window.root.withdraw()
         time_settings_window.root.deiconify()
